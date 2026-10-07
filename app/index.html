@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#ff5da2">
+  <title>Ava's Favourites</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Favourites">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <h1 class="brand"><span class="brand-emoji" aria-hidden="true">🎵</span> Ava's Favourites</h1>
+    <div class="topbar-actions">
+      <button id="audioToggle" class="opt-btn" type="button" aria-pressed="true"
+              title="Audio only — plays with the screen off">
+        <span class="opt-icon" aria-hidden="true">🎧</span>
+        <span class="opt-label">Audio</span>
+      </button>
+      <button id="autoplayToggle" class="opt-btn" type="button" aria-pressed="true"
+              title="Autoplay — roll on to the next song">
+        <span class="opt-icon" aria-hidden="true">⏭</span>
+        <span class="opt-label">Autoplay</span>
+      </button>
+      <button id="editToggle" class="edit-btn" type="button" aria-pressed="false">
+        <span class="edit-icon" aria-hidden="true">✏️</span>
+        <span class="edit-label">Edit</span>
+      </button>
+    </div>
+  </header>
+
+  <nav id="tabBar" class="tab-bar" aria-label="Categories">
+    <div id="tabList" class="tab-list" role="tablist"></div>
+    <form id="addTabForm" class="tab-add-form" hidden>
+      <input id="addTabInput" class="tab-add-input" type="text" maxlength="30"
+             placeholder="New tab name…" autocomplete="off">
+      <button class="tab-add-submit" type="submit">Add</button>
+    </form>
+    <button id="addTabBtn" class="tab-add-btn" type="button" aria-label="Add new tab">+</button>
+  </nav>
+
+  <!-- Add bar: only visible in edit mode -->
+  <form id="addBar" class="add-bar" hidden>
+    <input id="addInput" class="add-input" type="url" inputmode="url"
+           placeholder="Paste a YouTube link…" autocomplete="off" spellcheck="false">
+    <button id="addBtn" class="add-submit" type="submit">Add</button>
+    <p id="addMsg" class="add-msg" role="status" aria-live="polite"></p>
+  </form>
+
+  <main>
+    <div id="grid" class="grid" aria-busy="true"></div>
+
+    <div id="empty" class="empty" hidden>
+      <div class="empty-art" aria-hidden="true">🎈🎵🧸</div>
+      <h2>No songs yet</h2>
+      <p>Tap <strong>✏️ Edit</strong> up top, then paste a YouTube link to add your
+         little one's favourites.</p>
+    </div>
+
+    <div id="loadError" class="empty" hidden>
+      <div class="empty-art" aria-hidden="true">😴</div>
+      <h2>Couldn't load the list</h2>
+      <p>Check your connection and <button id="retryBtn" class="link-btn" type="button">try again</button>.</p>
+    </div>
+  </main>
+
+  <!-- Fullscreen player overlay -->
+  <div id="player" class="player" hidden>
+    <button id="playerClose" class="player-close" type="button" aria-label="Close">✕</button>
+
+    <!-- Video mode: the YouTube embed, as before -->
+    <div class="player-frame" id="playerFrame" hidden></div>
+
+    <!-- Audio mode: artwork and transport, driven by the shared <audio> element -->
+    <div class="audio-stage" id="audioStage" hidden>
+      <img id="audioArt" class="audio-art" alt="" aria-hidden="true">
+      <h2 id="audioTitle" class="audio-title">Loading…</h2>
+      <input id="audioSeek" class="audio-seek" type="range" min="0" max="1000" step="1" value="0"
+             aria-label="Seek">
+      <div class="audio-times">
+        <span id="audioElapsed">0:00</span>
+        <span id="audioDuration">0:00</span>
+      </div>
+      <div class="audio-transport">
+        <button id="audioPrev" class="audio-btn" type="button" aria-label="Previous song">⏮</button>
+        <button id="audioPlayPause" class="audio-btn audio-btn-main" type="button" aria-label="Pause">⏸</button>
+        <button id="audioNext" class="audio-btn" type="button" aria-label="Next song">⏭</button>
+      </div>
+      <p id="audioMsg" class="audio-msg" role="status" aria-live="polite"></p>
+    </div>
+
+    <div class="player-links">
+      <button id="playerWatch" class="player-link" type="button" hidden>Watch the video ↗</button>
+      <a id="playerYt" class="player-link" href="#" target="_blank" rel="noopener">Open in YouTube ↗</a>
+    </div>
+  </div>
+
+  <!-- One long-lived element for the whole session. iOS unlocks audio per
+       element on a user gesture, so reusing this one is what lets a song
+       auto-advance, and keep playing once the screen is off. -->
+  <audio id="audioEl" preload="metadata"></audio>
+
+  <script src="app.js"></script>
+</body>
+</html>

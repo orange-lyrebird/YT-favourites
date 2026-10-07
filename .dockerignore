@@ -1,0 +1,8 @@
+.git
+.github
+data
+cache
+*.md
+docker-compose.yml
+._*
+.DS_Store

@@ -1,0 +1,33 @@
+# Two containers from the same image: the web app, and a sidecar that downloads
+# the audio for every video in the list so it plays from your own origin.
+services:
+  app:
+    image: ghcr.io/orange-lyrebird/yt-favourites:latest   # pin a version tag in production
+    restart: unless-stopped
+    user: "1000:1000"          # must own ./data and ./cache
+    ports:
+      - "8080:8080"
+    environment:
+      - DATA_DIR=/data
+      - PORT=8080
+    volumes:
+      - ./data:/data
+
+  sync:
+    image: ghcr.io/orange-lyrebird/yt-favourites:latest
+    restart: unless-stopped
+    user: "1000:1000"
+    entrypoint: ["/bin/sh", "/scripts/sync-media.sh"]
+    environment:
+      - DATA_DIR=/data
+      - POLL_SECONDS=60
+      - RETRY_SECONDS=3600
+    volumes:
+      - ./data:/data
+      - ./cache:/cache
+    healthcheck:
+      test: ["CMD-SHELL", "test $$(( $$(date +%s) - $$(stat -c %Y /data/media/.alive) )) -lt 900"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
