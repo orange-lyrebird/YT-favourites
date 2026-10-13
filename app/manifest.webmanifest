@@ -1,6 +1,6 @@
 {
-  "name": "Baby's Favourites",
-  "short_name": "Favourites",
+  "name": "{{APP_TITLE}}",
+  "short_name": "{{APP_TITLE}}",
   "description": "A simple, ad-light YouTube playlist for the little one.",
   "start_url": "/",
   "scope": "/",

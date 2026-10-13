@@ -1,6 +1,6 @@
 'use strict';
 
-// Baby's Favourites — client. Renders tiles from the shared backend list, plays
+// YT Favourites — client. Renders tiles from the shared backend list, plays
 // them either as same-origin audio (the default: starts on the tap, survives the
 // screen going off, gets lock-screen controls) or as an embedded YouTube video,
 // and (in edit mode) adds/removes videos.
@@ -288,7 +288,7 @@ function updateMediaMetadata(track) {
   if (!('mediaSession' in navigator) || typeof MediaMetadata === 'undefined') return;
   navigator.mediaSession.metadata = new MediaMetadata({
     title: track.title || 'Favourite',
-    artist: track.channel || "Ava's Favourites",
+    artist: track.channel || document.title,
     artwork: [{ src: thumbUrl(track.videoId), sizes: '480x360', type: 'image/jpeg' }],
   });
 }

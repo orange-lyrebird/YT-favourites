@@ -1,6 +1,6 @@
 'use strict';
 
-// Baby's Favourites — tiny zero-dependency static server + JSON video API.
+// YT Favourites — tiny zero-dependency static server + JSON video API.
 // Node built-ins only (http, fs, path, crypto). Persists the list to a single
 // JSON file on a volume so it is shared across every device.
 
@@ -22,6 +22,7 @@ const TABS_SEED = path.join(DATA_DIR, 'tabs.default.json');
 // Audio pulled down by the media-sync sidecar: <videoId>.m4a plus a slim
 // <videoId>.json of title/duration/channel.
 const MEDIA_DIR = path.join(DATA_DIR, 'media');
+const APP_TITLE = (process.env.APP_TITLE || '').trim() || 'YT favourites';
 const APP_DIR = __dirname; // static files live next to this script (/app)
 
 const MIME = {
@@ -143,6 +144,15 @@ function readBody(req, limit = 64 * 1024) {
 }
 
 // ── Static files ──────────────────────────────────────────────────────────────
+// The app title is the one piece of branding that is configurable (APP_TITLE).
+// index.html and the manifest carry a {{APP_TITLE}} placeholder that is filled in
+// per request; it is escaped for the context it lands in.
+const escapeHtml = (s) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+function applyTitle(text, ext) {
+  const value = ext === '.html' ? escapeHtml(APP_TITLE) : JSON.stringify(APP_TITLE).slice(1, -1);
+  return text.split('{{APP_TITLE}}').join(value);
+}
+
 async function serveStatic(req, res, pathname) {
   let rel = decodeURIComponent(pathname);
   if (rel === '/') rel = '/index.html';
@@ -166,6 +176,13 @@ async function serveStatic(req, res, pathname) {
     } else {
       headers['Cache-Control'] = 'public, max-age=3600';
     }
+    if (base === 'index.html' || base === 'manifest.webmanifest') {
+      const body = Buffer.from(applyTitle(await fsp.readFile(filePath, 'utf8'), ext));
+      headers['Content-Length'] = body.length;
+      res.writeHead(200, headers);
+      res.end(body);
+      return;
+    }
     headers['Content-Length'] = stat.size;
     res.writeHead(200, headers);
     fs.createReadStream(filePath).pipe(res);
@@ -174,7 +191,7 @@ async function serveStatic(req, res, pathname) {
       // SPA fallback: unknown non-API path → serve the app shell.
       if (req.method === 'GET' && !rel.startsWith('/api/')) {
         try {
-          const html = await fsp.readFile(path.join(APP_DIR, 'index.html'));
+          const html = applyTitle(await fsp.readFile(path.join(APP_DIR, 'index.html'), 'utf8'), '.html');
           res.writeHead(200, { 'Content-Type': MIME['.html'], 'Cache-Control': 'no-cache' });
           res.end(html);
           return;

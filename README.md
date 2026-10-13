@@ -30,6 +30,7 @@ Open http://localhost:8080. Image: `ghcr.io/orange-lyrebird/yt-favourites`
 |---|---|---|---|
 | `DATA_DIR` | `/data` | both | where the lists and `media/` live |
 | `PORT` | `8080` | app | listen port |
+| `APP_TITLE` | `YT favourites` | app | name shown in the header, browser tab, home-screen icon and lock screen |
 | `POLL_SECONDS` | `60` | sync | how often to look for new videos |
 | `RETRY_SECONDS` | `3600` | sync | back-off after a failed download |
 

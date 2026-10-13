@@ -1,6 +1,6 @@
 'use strict';
 
-// Baby's Favourites — service worker.
+// YT Favourites — service worker.
 // Precache the app shell for offline launch. Never cache the API or YouTube;
 // the video list and the videos themselves always come from the network.
 // Bump CACHE_VERSION whenever a shell asset (html/css/js/icons) changes.
